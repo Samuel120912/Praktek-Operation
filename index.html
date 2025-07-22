@@ -1,37 +1,160 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Test Kirim Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#ffffff"/>
+  <title>Form Pemeriksaan Unit</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+      background: #f5f5f5;
+    }
+    form {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .option-btn {
+      flex: 1 1 auto;
+      text-align: center;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #eee;
+      cursor: pointer;
+    }
+    .option-btn.active {
+      background-color: #4CAF50;
+      color: white;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem 1.5rem;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h3>Form Test Kirim ke Spreadsheet</h3>
-  <input type="text" id="namaPeserta" placeholder="Nama Peserta"><br><br>
-  <input type="date" id="tanggal"><br><br>
-  <button onclick="kirim()">Kirim</button>
+  <form id="form">
+    <h2>Form Pemeriksaan Unit</h2>
+    <label>Nama Peserta:</label>
+    <input type="text" id="nama" required />
 
-  <p id="status"></p>
+    <label>Tanggal:</label>
+    <input type="date" id="tanggal" required />
+
+    <label>Unit:</label>
+    <select id="unit" required>
+      <option value="">-- Pilih Unit --</option>
+      <option value="PC200-10 M0 CE">PC200-10 M0 CE</option>
+      <option value="PC210-10M0">PC210-10M0</option>
+      <option value="PC300-8M2">PC300-8M2</option>
+      <option value="PC350-8M2">PC350-8M2</option>
+    </select>
+
+    <div id="checks"></div>
+
+    <label>Note:</label>
+    <textarea id="note" rows="3"></textarea>
+
+    <button type="submit">Simpan</button>
+  </form>
 
   <script>
-    function kirim() {
-      const data = {
-        namaPeserta: document.getElementById("namaPeserta").value,
-        tanggal: document.getElementById("tanggal").value,
-      };
+    const form = document.getElementById("form");
+    const checks = [
+      "Pengecekan Track Kanan",
+      "Pengecekan Track Kiri",
+      "Pengecekan Boom",
+      "Pengecekan Arm",
+      "Pengecekan Bucket",
+      "Pengecekan Area Engine",
+      "Pengecekan Area Swing system",
+      "Pengecekan Area Hydraulic Pump",
+      "Pengecekan Area Cooler",
+      "Pengecekan Area Cabin",
+      "Greasing"
+    ];
 
-      fetch("https://script.google.com/macros/s/AKfycbwIWbQbqwChvkGRmegTUyiDIt_XGXyYTo5wN6r_UOVsds5WKk4eowCOXh8pnqENzjC9/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.text())
-      .then(res => {
-        document.getElementById("status").innerText = "✅ " + res;
-      })
-      .catch(err => {
-        document.getElementById("status").innerText = "❌ Error: " + err;
+    const container = document.getElementById("checks");
+    checks.forEach(item => {
+      const id = item.toLowerCase().replace(/\s+/g, "-");
+      container.innerHTML += `
+        <label>${item}:</label>
+        <div class="btn-group" data-id="${id}">
+          <div class="option-btn" data-value="${item === 'Greasing' ? 'Sudah Greasing' : 'Baik'}">${item === 'Greasing' ? 'Sudah Greasing' : 'Baik'}</div>
+          <div class="option-btn" data-value="${item === 'Greasing' ? 'Belum Greasing' : 'Buruk'}">${item === 'Greasing' ? 'Belum Greasing' : 'Buruk'}</div>
+        </div>
+      `;
+    });
+
+    const state = {};
+    document.querySelectorAll(".btn-group").forEach(group => {
+      const id = group.dataset.id;
+      const buttons = group.querySelectorAll(".option-btn");
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state[id] = btn.dataset.value;
+        });
+      });
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const data = {
+        nama: document.getElementById("nama").value,
+        tanggal: document.getElementById("tanggal").value,
+        unit: document.getElementById("unit").value,
+        note: document.getElementById("note").value,
+        ...state
+      };
+      const simpanan = JSON.parse(localStorage.getItem("pemeriksaan")) || [];
+      simpanan.push(data);
+      localStorage.setItem("pemeriksaan", JSON.stringify(simpanan));
+      alert("Data berhasil disimpan secara lokal!");
+      form.reset();
+      document.querySelectorAll(".option-btn").forEach(btn => btn.classList.remove("active"));
+    });
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.error('Service Worker failed:', err));
       });
     }
   </script>
