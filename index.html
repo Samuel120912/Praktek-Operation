@@ -29,16 +29,18 @@
     }
     .btn-group {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin: 8px 0;
     }
     .option-btn {
-      flex: 1;
+      flex: 1 1 45%;
       padding: 10px;
       background-color: #e0e0e0;
       border: 1px solid #ccc;
       cursor: pointer;
       text-align: center;
+      border-radius: 5px;
     }
     .option-btn.active {
       background-color: #007bff;
@@ -72,99 +74,5 @@
     <input type="date" id="tanggal" required />
 
     <label>Unit:</label>
-    <input type="text" id="unit" required />
-
-    <!-- Pemeriksaan Loop -->
-    <div id="pemeriksaanContainer"></div>
-
-    <label>Note:</label>
-    <textarea id="note" rows="3" placeholder="Catatan tambahan..."></textarea>
-
-    <button type="submit">Simpan Pemeriksaan</button>
-  </form>
-
-  <div class="hasil" id="hasilContainer" style="display: none;">
-    <h3>Data Tersimpan:</h3>
-    <div id="hasilIsi"></div>
-  </div>
-
-  <script>
-    const form = document.getElementById("formPemeriksaan");
-    const hasil = document.getElementById("hasilIsi");
-    const container = document.getElementById("hasilContainer");
-    const pemeriksaanContainer = document.getElementById("pemeriksaanContainer");
-
-    // Daftar pemeriksaan
-    const items = [
-      { id: "trackKanan", label: "1. Pengecekan Track Kanan", options: ["Baik", "Buruk"] },
-      { id: "trackKiri", label: "2. Pengecekan Track Kiri", options: ["Baik", "Buruk"] },
-      { id: "boom", label: "3. Pengecekan Boom", options: ["Baik", "Buruk"] },
-      { id: "arm", label: "4. Pengecekan Arm", options: ["Baik", "Buruk"] },
-      { id: "bucket", label: "5. Pengecekan Bucket", options: ["Baik", "Buruk"] },
-      { id: "engine", label: "6. Pengecekan Area Engine", options: ["Baik", "Buruk"] },
-      { id: "swing", label: "7. Pengecekan Area Swing System", options: ["Baik", "Buruk"] },
-      { id: "hydraulic", label: "8. Pengecekan Area Hydraulic Pump", options: ["Baik", "Buruk"] },
-      { id: "cooler", label: "9. Pengecekan Area Cooler", options: ["Baik", "Buruk"] },
-      { id: "cabin", label: "10. Pengecekan Area Cabin", options: ["Baik", "Buruk"] },
-      { id: "greasing", label: "11. Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
-    ];
-
-    const state = {};
-
-    // Generate tombol pilihan
-    items.forEach(item => {
-      const label = document.createElement("label");
-      label.textContent = item.label;
-
-      const group = document.createElement("div");
-      group.className = "btn-group";
-
-      item.options.forEach(opt => {
-        const btn = document.createElement("div");
-        btn.className = "option-btn";
-        btn.textContent = opt;
-        btn.dataset.value = opt;
-        btn.dataset.field = item.id;
-
-        btn.addEventListener("click", () => {
-          state[item.id] = opt;
-          [...group.children].forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-        });
-
-        group.appendChild(btn);
-      });
-
-      pemeriksaanContainer.appendChild(label);
-      pemeriksaanContainer.appendChild(group);
-    });
-
-    // Submit
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-
-      const data = {
-        nama: document.getElementById("nama").value,
-        tanggal: document.getElementById("tanggal").value,
-        unit: document.getElementById("unit").value,
-        note: document.getElementById("note").value,
-        ...state
-      };
-
-      // Simpan ke localStorage (jika ingin disimpan)
-      localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
-
-      // Tampilkan hasil
-      hasil.innerHTML = Object.entries(data).map(([key, value]) => {
-        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-        return `<div class="item"><strong>${label}:</strong> ${value}</div>`;
-      }).join("");
-      container.style.display = "block";
-
-      form.reset();
-      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
-      for (let key in state) delete state[key];
-    });
-  </script>
-</body>
-</html>
+    <div class="btn-group" id="unitOptions">
+      <div class="option-btn" data-
