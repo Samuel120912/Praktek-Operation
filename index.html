@@ -3,73 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#ffffff"/>
   <title>Form Pemeriksaan Unit</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon-192.png" />
-  <meta name="theme-color" content="#007bff"/>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f4f4f4;
+      font-family: sans-serif;
+      margin: 1rem;
+      background: #f5f5f5;
+    }
+    form {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       max-width: 600px;
       margin: auto;
-    }
-    h2 {
-      text-align: center;
     }
     label {
       font-weight: bold;
       display: block;
-      margin-top: 10px;
+      margin-top: 1rem;
     }
-    input, select, textarea, button {
+    input, select, textarea {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      box-sizing: border-box;
-      font-size: 16px;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
     .btn-group {
       display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
       flex-wrap: wrap;
-      gap: 10px;
-      margin: 8px 0;
     }
     .option-btn {
-      flex: 1 1 45%;
-      padding: 10px;
-      background-color: #e0e0e0;
-      border: 1px solid #ccc;
-      cursor: pointer;
+      flex: 1 1 auto;
       text-align: center;
-      border-radius: 5px;
+      padding: 0.6rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #eee;
+      cursor: pointer;
     }
     .option-btn.active {
-      background-color: #007bff;
+      background-color: #4CAF50;
       color: white;
       font-weight: bold;
     }
-    button[type="submit"] {
-      background-color: #28a745;
+    button {
+      margin-top: 1.5rem;
+      padding: 0.7rem 1.5rem;
+      background-color: #2196F3;
       color: white;
       border: none;
-      margin-top: 15px;
-    }
-    .hasil {
-      margin-top: 20px;
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-    }
-    .item {
-      margin-bottom: 10px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h2>Form Pemeriksaan Unit</h2>
-  <form id="formPemeriksaan">
+  <form id="form">
+    <h2>Form Pemeriksaan Unit</h2>
     <label>Nama Peserta:</label>
     <input type="text" id="nama" required />
 
@@ -85,103 +83,80 @@
       <option value="PC350-8M2">PC350-8M2</option>
     </select>
 
-    <div id="pemeriksaanContainer"></div>
+    <div id="checks"></div>
 
     <label>Note:</label>
-    <textarea id="note" rows="3" placeholder="Catatan tambahan..."></textarea>
+    <textarea id="note" rows="3"></textarea>
 
-    <button type="submit">Simpan Pemeriksaan</button>
+    <button type="submit">Simpan</button>
   </form>
 
-  <div class="hasil" id="hasilContainer" style="display: none;">
-    <h3>Data Tersimpan:</h3>
-    <div id="hasilIsi"></div>
-  </div>
-
   <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").then(() => {
-        console.log("Service Worker registered");
-      });
-    }
-
-    const form = document.getElementById("formPemeriksaan");
-    const hasil = document.getElementById("hasilIsi");
-    const container = document.getElementById("hasilContainer");
-    const pemeriksaanContainer = document.getElementById("pemeriksaanContainer");
-
-    const state = {};
-
-    const items = [
-      { id: "trackKanan", label: "1. Pengecekan Track Kanan", options: ["Baik", "Buruk"] },
-      { id: "trackKiri", label: "2. Pengecekan Track Kiri", options: ["Baik", "Buruk"] },
-      { id: "boom", label: "3. Pengecekan Boom", options: ["Baik", "Buruk"] },
-      { id: "arm", label: "4. Pengecekan Arm", options: ["Baik", "Buruk"] },
-      { id: "bucket", label: "5. Pengecekan Bucket", options: ["Baik", "Buruk"] },
-      { id: "engine", label: "6. Pengecekan Area Engine", options: ["Baik", "Buruk"] },
-      { id: "swing", label: "7. Pengecekan Area Swing System", options: ["Baik", "Buruk"] },
-      { id: "hydraulic", label: "8. Pengecekan Area Hydraulic Pump", options: ["Baik", "Buruk"] },
-      { id: "cooler", label: "9. Pengecekan Area Cooler", options: ["Baik", "Buruk"] },
-      { id: "cabin", label: "10. Pengecekan Area Cabin", options: ["Baik", "Buruk"] },
-      { id: "greasing", label: "11. Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
+    const form = document.getElementById("form");
+    const checks = [
+      "Pengecekan Track Kanan",
+      "Pengecekan Track Kiri",
+      "Pengecekan Boom",
+      "Pengecekan Arm",
+      "Pengecekan Bucket",
+      "Pengecekan Area Engine",
+      "Pengecekan Area Swing system",
+      "Pengecekan Area Hydraulic Pump",
+      "Pengecekan Area Cooler",
+      "Pengecekan Area Cabin",
+      "Greasing"
     ];
 
-    items.forEach(item => {
-      const label = document.createElement("label");
-      label.textContent = item.label;
-
-      const group = document.createElement("div");
-      group.className = "btn-group";
-
-      item.options.forEach(opt => {
-        const btn = document.createElement("div");
-        btn.className = "option-btn";
-        btn.textContent = opt;
-        btn.dataset.value = opt;
-        btn.dataset.field = item.id;
-
-        btn.addEventListener("click", () => {
-          state[item.id] = opt;
-          [...group.children].forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-        });
-
-        group.appendChild(btn);
-      });
-
-      pemeriksaanContainer.appendChild(label);
-      pemeriksaanContainer.appendChild(group);
+    const container = document.getElementById("checks");
+    checks.forEach(item => {
+      const id = item.toLowerCase().replace(/\s+/g, "-");
+      container.innerHTML += `
+        <label>${item}:</label>
+        <div class="btn-group" data-id="${id}">
+          <div class="option-btn" data-value="${item === 'Greasing' ? 'Sudah Greasing' : 'Baik'}">${item === 'Greasing' ? 'Sudah Greasing' : 'Baik'}</div>
+          <div class="option-btn" data-value="${item === 'Greasing' ? 'Belum Greasing' : 'Buruk'}">${item === 'Greasing' ? 'Belum Greasing' : 'Buruk'}</div>
+        </div>
+      `;
     });
 
-    form.addEventListener("submit", (e) => {
+    const state = {};
+    document.querySelectorAll(".btn-group").forEach(group => {
+      const id = group.dataset.id;
+      const buttons = group.querySelectorAll(".option-btn");
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state[id] = btn.dataset.value;
+        });
+      });
+    });
+
+    form.addEventListener("submit", e => {
       e.preventDefault();
-
-      const unit = document.getElementById("unit").value;
-      if (!unit) {
-        alert("Silakan pilih unit terlebih dahulu.");
-        return;
-      }
-
       const data = {
         nama: document.getElementById("nama").value,
         tanggal: document.getElementById("tanggal").value,
-        unit: unit,
+        unit: document.getElementById("unit").value,
         note: document.getElementById("note").value,
         ...state
       };
-
-      localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
-
-      hasil.innerHTML = Object.entries(data).map(([key, value]) => {
-        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
-        return `<div class="item"><strong>${label}:</strong> ${value}</div>`;
-      }).join("");
-      container.style.display = "block";
-
+      const simpanan = JSON.parse(localStorage.getItem("pemeriksaan")) || [];
+      simpanan.push(data);
+      localStorage.setItem("pemeriksaan", JSON.stringify(simpanan));
+      alert("Data berhasil disimpan secara lokal!");
       form.reset();
-      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
-      for (let key in state) delete state[key];
+      document.querySelectorAll(".option-btn").forEach(btn => btn.classList.remove("active"));
     });
+
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.error('Service Worker failed:', err));
+      });
+    }
   </script>
 </body>
 </html>
