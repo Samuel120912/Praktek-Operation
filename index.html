@@ -20,7 +20,7 @@
       display: block;
       margin-top: 10px;
     }
-    input, textarea, button {
+    input, select, textarea, button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -74,14 +74,15 @@
     <input type="date" id="tanggal" required />
 
     <label>Unit:</label>
-    <div class="btn-group" id="unitOptions">
-      <div class="option-btn" data-value="PC200-10 M0 CE">PC200-10 M0 CE</div>
-      <div class="option-btn" data-value="PC210-10M0">PC210-10M0</div>
-      <div class="option-btn" data-value="PC300-8M2">PC300-8M2</div>
-      <div class="option-btn" data-value="PC350-8M2">PC350-8M2</div>
-    </div>
+    <select id="unit" required>
+      <option value="">-- Pilih Unit --</option>
+      <option value="PC200-10 M0 CE">PC200-10 M0 CE</option>
+      <option value="PC210-10M0">PC210-10M0</option>
+      <option value="PC300-8M2">PC300-8M2</option>
+      <option value="PC350-8M2">PC350-8M2</option>
+    </select>
 
-    <!-- Pemeriksaan Dinamis -->
+    <!-- Pemeriksaan -->
     <div id="pemeriksaanContainer"></div>
 
     <label>Note:</label>
@@ -101,10 +102,8 @@
     const container = document.getElementById("hasilContainer");
     const pemeriksaanContainer = document.getElementById("pemeriksaanContainer");
 
-    let selectedUnit = null;
     const state = {};
 
-    // Daftar pemeriksaan
     const items = [
       { id: "trackKanan", label: "1. Pengecekan Track Kanan", options: ["Baik", "Buruk"] },
       { id: "trackKiri", label: "2. Pengecekan Track Kiri", options: ["Baik", "Buruk"] },
@@ -119,7 +118,6 @@
       { id: "greasing", label: "11. Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
     ];
 
-    // Buat tombol untuk tiap pemeriksaan
     items.forEach(item => {
       const label = document.createElement("label");
       label.textContent = item.label;
@@ -147,37 +145,25 @@
       pemeriksaanContainer.appendChild(group);
     });
 
-    // Tombol pilihan unit
-    const unitButtons = document.querySelectorAll('#unitOptions .option-btn');
-    unitButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectedUnit = btn.dataset.value;
-        unitButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-      });
-    });
-
-    // Saat form disubmit
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
-      if (!selectedUnit) {
-        alert("Silakan pilih Unit terlebih dahulu.");
+      const unit = document.getElementById("unit").value;
+      if (!unit) {
+        alert("Silakan pilih unit terlebih dahulu.");
         return;
       }
 
       const data = {
         nama: document.getElementById("nama").value,
         tanggal: document.getElementById("tanggal").value,
-        unit: selectedUnit,
+        unit: unit,
         note: document.getElementById("note").value,
         ...state
       };
 
-      // Simpan sementara (opsional)
       localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
 
-      // Tampilkan hasil
       hasil.innerHTML = Object.entries(data).map(([key, value]) => {
         const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
         return `<div class="item"><strong>${label}:</strong> ${value}</div>`;
@@ -186,7 +172,6 @@
 
       form.reset();
       document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
-      selectedUnit = null;
       for (let key in state) delete state[key];
     });
   </script>
