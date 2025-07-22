@@ -1,19 +1,14 @@
 {
   "name": "Form Pemeriksaan Unit",
   "short_name": "Pemeriksaan",
-  "start_url": ".",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2196F3",
+  "theme_color": "#2196f3",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "512x512",
       "type": "image/png"
     }
   ]
