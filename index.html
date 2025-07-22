@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Form Pemeriksaan Unit</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <meta name="theme-color" content="#007bff"/>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -82,7 +85,6 @@
       <option value="PC350-8M2">PC350-8M2</option>
     </select>
 
-    <!-- Pemeriksaan -->
     <div id="pemeriksaanContainer"></div>
 
     <label>Note:</label>
@@ -97,6 +99,12 @@
   </div>
 
   <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(() => {
+        console.log("Service Worker registered");
+      });
+    }
+
     const form = document.getElementById("formPemeriksaan");
     const hasil = document.getElementById("hasilIsi");
     const container = document.getElementById("hasilContainer");
