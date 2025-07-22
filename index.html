@@ -3,79 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Form Peserta Training</title>
+  <title>Form Pemeriksaan Unit</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      max-width: 400px;
+      background-color: #f4f4f4;
+      max-width: 600px;
       margin: auto;
-      background-color: #f1f1f1;
     }
     h2 {
       text-align: center;
     }
-    input, button {
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input, select, textarea, button {
       width: 100%;
       padding: 10px;
-      margin: 8px 0;
+      margin-top: 5px;
       box-sizing: border-box;
       font-size: 16px;
     }
     button {
-      background-color: #4CAF50;
+      background-color: #28a745;
       color: white;
       border: none;
+      margin-top: 15px;
     }
-    #dataList {
+    .hasil {
       margin-top: 20px;
       background: white;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .item {
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <h2>Form Peserta Training</h2>
-  <form id="formPeserta">
-    <input type="text" id="nama" placeholder="Nama Peserta" required />
+  <h2>Form Pemeriksaan Unit</h2>
+  <form id="formPemeriksaan">
+    <label>Nama Peserta:</label>
+    <input type="text" id="nama" required />
+
+    <label>Tanggal:</label>
     <input type="date" id="tanggal" required />
-    <button type="submit">Simpan</button>
+
+    <label>Unit:</label>
+    <input type="text" id="unit" required />
+
+    <label>1. Pengecekan Track Kanan:</label>
+    <select id="trackKanan">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>2. Pengecekan Track Kiri:</label>
+    <select id="trackKiri">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>3. Pengecekan Boom:</label>
+    <select id="boom">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>4. Pengecekan Arm:</label>
+    <select id="arm">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>5. Pengecekan Bucket:</label>
+    <select id="bucket">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>6. Pengecekan Area Engine:</label>
+    <select id="engine">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>7. Pengecekan Area Swing System:</label>
+    <select id="swing">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>8. Pengecekan Area Hydraulic Pump:</label>
+    <select id="hydraulic">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>9. Pengecekan Area Cooler:</label>
+    <select id="cooler">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>10. Pengecekan Area Cabin:</label>
+    <select id="cabin">
+      <option>Baik</option>
+      <option>Buruk</option>
+    </select>
+
+    <label>11. Greasing:</label>
+    <select id="greasing">
+      <option>Sudah Greasing</option>
+      <option>Belum Greasing</option>
+    </select>
+
+    <label>12. Note:</label>
+    <textarea id="note" rows="3" placeholder="Catatan tambahan..."></textarea>
+
+    <button type="submit">Simpan Pemeriksaan</button>
   </form>
 
-  <div id="dataList">
-    <h3>Data Peserta:</h3>
-    <ul id="listPeserta"></ul>
+  <div class="hasil" id="hasilContainer" style="display: none;">
+    <h3>Data Tersimpan:</h3>
+    <div id="hasilIsi"></div>
   </div>
 
   <script>
-    const form = document.getElementById('formPeserta');
-    const list = document.getElementById('listPeserta');
+    const form = document.getElementById("formPemeriksaan");
+    const hasil = document.getElementById("hasilIsi");
+    const container = document.getElementById("hasilContainer");
 
-    // Ambil data dari localStorage saat pertama kali
-    const dataPeserta = JSON.parse(localStorage.getItem('peserta')) || [];
-
-    function renderList() {
-      list.innerHTML = '';
-      dataPeserta.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${item.nama} - ${item.tanggal}`;
-        list.appendChild(li);
-      });
-    }
-
-    form.addEventListener('submit', function(e) {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
-      const nama = document.getElementById('nama').value;
-      const tanggal = document.getElementById('tanggal').value;
 
-      dataPeserta.push({ nama, tanggal });
-      localStorage.setItem('peserta', JSON.stringify(dataPeserta));
-      renderList();
+      const data = {
+        nama: document.getElementById("nama").value,
+        tanggal: document.getElementById("tanggal").value,
+        unit: document.getElementById("unit").value,
+        trackKanan: document.getElementById("trackKanan").value,
+        trackKiri: document.getElementById("trackKiri").value,
+        boom: document.getElementById("boom").value,
+        arm: document.getElementById("arm").value,
+        bucket: document.getElementById("bucket").value,
+        engine: document.getElementById("engine").value,
+        swing: document.getElementById("swing").value,
+        hydraulic: document.getElementById("hydraulic").value,
+        cooler: document.getElementById("cooler").value,
+        cabin: document.getElementById("cabin").value,
+        greasing: document.getElementById("greasing").value,
+        note: document.getElementById("note").value
+      };
+
+      // Simpan ke localStorage
+      localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
+
+      // Tampilkan hasil
+      hasil.innerHTML = Object.entries(data).map(([key, value]) => {
+        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+        return `<div class="item"><strong>${label}:</strong> ${value}</div>`;
+      }).join("");
+      container.style.display = "block";
+
       form.reset();
     });
-
-    renderList();
   </script>
 </body>
 </html>
