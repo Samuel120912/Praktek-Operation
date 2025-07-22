@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Form Peserta Training</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background-color: #f1f1f1;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    #dataList {
+      margin-top: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Form Peserta Training</h2>
+  <form id="formPeserta">
+    <input type="text" id="nama" placeholder="Nama Peserta" required />
+    <input type="date" id="tanggal" required />
+    <button type="submit">Simpan</button>
+  </form>
+
+  <div id="dataList">
+    <h3>Data Peserta:</h3>
+    <ul id="listPeserta"></ul>
+  </div>
+
+  <script>
+    const form = document.getElementById('formPeserta');
+    const list = document.getElementById('listPeserta');
+
+    // Ambil data dari localStorage saat pertama kali
+    const dataPeserta = JSON.parse(localStorage.getItem('peserta')) || [];
+
+    function renderList() {
+      list.innerHTML = '';
+      dataPeserta.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.nama} - ${item.tanggal}`;
+        list.appendChild(li);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nama = document.getElementById('nama').value;
+      const tanggal = document.getElementById('tanggal').value;
+
+      dataPeserta.push({ nama, tanggal });
+      localStorage.setItem('peserta', JSON.stringify(dataPeserta));
+      renderList();
+      form.reset();
+    });
+
+    renderList();
+  </script>
+</body>
+</html>
