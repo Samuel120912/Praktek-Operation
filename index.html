@@ -20,14 +20,32 @@
       display: block;
       margin-top: 10px;
     }
-    input, select, textarea, button {
+    input, textarea, button {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
       box-sizing: border-box;
       font-size: 16px;
     }
-    button {
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin: 8px 0;
+    }
+    .option-btn {
+      flex: 1;
+      padding: 10px;
+      background-color: #e0e0e0;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      text-align: center;
+    }
+    .option-btn.active {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+    button[type="submit"] {
       background-color: #28a745;
       color: white;
       border: none;
@@ -56,73 +74,10 @@
     <label>Unit:</label>
     <input type="text" id="unit" required />
 
-    <label>1. Pengecekan Track Kanan:</label>
-    <select id="trackKanan">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
+    <!-- Pemeriksaan Loop -->
+    <div id="pemeriksaanContainer"></div>
 
-    <label>2. Pengecekan Track Kiri:</label>
-    <select id="trackKiri">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>3. Pengecekan Boom:</label>
-    <select id="boom">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>4. Pengecekan Arm:</label>
-    <select id="arm">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>5. Pengecekan Bucket:</label>
-    <select id="bucket">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>6. Pengecekan Area Engine:</label>
-    <select id="engine">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>7. Pengecekan Area Swing System:</label>
-    <select id="swing">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>8. Pengecekan Area Hydraulic Pump:</label>
-    <select id="hydraulic">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>9. Pengecekan Area Cooler:</label>
-    <select id="cooler">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>10. Pengecekan Area Cabin:</label>
-    <select id="cabin">
-      <option>Baik</option>
-      <option>Buruk</option>
-    </select>
-
-    <label>11. Greasing:</label>
-    <select id="greasing">
-      <option>Sudah Greasing</option>
-      <option>Belum Greasing</option>
-    </select>
-
-    <label>12. Note:</label>
+    <label>Note:</label>
     <textarea id="note" rows="3" placeholder="Catatan tambahan..."></textarea>
 
     <button type="submit">Simpan Pemeriksaan</button>
@@ -137,7 +92,54 @@
     const form = document.getElementById("formPemeriksaan");
     const hasil = document.getElementById("hasilIsi");
     const container = document.getElementById("hasilContainer");
+    const pemeriksaanContainer = document.getElementById("pemeriksaanContainer");
 
+    // Daftar pemeriksaan
+    const items = [
+      { id: "trackKanan", label: "1. Pengecekan Track Kanan", options: ["Baik", "Buruk"] },
+      { id: "trackKiri", label: "2. Pengecekan Track Kiri", options: ["Baik", "Buruk"] },
+      { id: "boom", label: "3. Pengecekan Boom", options: ["Baik", "Buruk"] },
+      { id: "arm", label: "4. Pengecekan Arm", options: ["Baik", "Buruk"] },
+      { id: "bucket", label: "5. Pengecekan Bucket", options: ["Baik", "Buruk"] },
+      { id: "engine", label: "6. Pengecekan Area Engine", options: ["Baik", "Buruk"] },
+      { id: "swing", label: "7. Pengecekan Area Swing System", options: ["Baik", "Buruk"] },
+      { id: "hydraulic", label: "8. Pengecekan Area Hydraulic Pump", options: ["Baik", "Buruk"] },
+      { id: "cooler", label: "9. Pengecekan Area Cooler", options: ["Baik", "Buruk"] },
+      { id: "cabin", label: "10. Pengecekan Area Cabin", options: ["Baik", "Buruk"] },
+      { id: "greasing", label: "11. Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
+    ];
+
+    const state = {};
+
+    // Generate tombol pilihan
+    items.forEach(item => {
+      const label = document.createElement("label");
+      label.textContent = item.label;
+
+      const group = document.createElement("div");
+      group.className = "btn-group";
+
+      item.options.forEach(opt => {
+        const btn = document.createElement("div");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.dataset.value = opt;
+        btn.dataset.field = item.id;
+
+        btn.addEventListener("click", () => {
+          state[item.id] = opt;
+          [...group.children].forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+
+        group.appendChild(btn);
+      });
+
+      pemeriksaanContainer.appendChild(label);
+      pemeriksaanContainer.appendChild(group);
+    });
+
+    // Submit
     form.addEventListener("submit", (e) => {
       e.preventDefault();
 
@@ -145,21 +147,11 @@
         nama: document.getElementById("nama").value,
         tanggal: document.getElementById("tanggal").value,
         unit: document.getElementById("unit").value,
-        trackKanan: document.getElementById("trackKanan").value,
-        trackKiri: document.getElementById("trackKiri").value,
-        boom: document.getElementById("boom").value,
-        arm: document.getElementById("arm").value,
-        bucket: document.getElementById("bucket").value,
-        engine: document.getElementById("engine").value,
-        swing: document.getElementById("swing").value,
-        hydraulic: document.getElementById("hydraulic").value,
-        cooler: document.getElementById("cooler").value,
-        cabin: document.getElementById("cabin").value,
-        greasing: document.getElementById("greasing").value,
-        note: document.getElementById("note").value
+        note: document.getElementById("note").value,
+        ...state
       };
 
-      // Simpan ke localStorage
+      // Simpan ke localStorage (jika ingin disimpan)
       localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
 
       // Tampilkan hasil
@@ -170,6 +162,8 @@
       container.style.display = "block";
 
       form.reset();
+      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+      for (let key in state) delete state[key];
     });
   </script>
 </body>
