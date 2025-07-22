@@ -2,170 +2,37 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Form Pemeriksaan Unit</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon-192.png">
-  <meta name="theme-color" content="#ffffff">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 16px;
-      background: #f5f5f5;
-    }
-    h2 {
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 12px;
-    }
-    select, input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .button-group button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .selected {
-      background-color: #4caf50;
-      color: white;
-    }
-    #submit {
-      margin-top: 20px;
-      width: 100%;
-      padding: 12px;
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-    }
-    .status {
-      margin-top: 10px;
-      font-weight: bold;
-    }
-  </style>
+  <title>Test Kirim Form</title>
 </head>
 <body>
+  <h3>Form Test Kirim ke Spreadsheet</h3>
+  <input type="text" id="namaPeserta" placeholder="Nama Peserta"><br><br>
+  <input type="date" id="tanggal"><br><br>
+  <button onclick="kirim()">Kirim</button>
 
-  <h2>Form Pemeriksaan Unit</h2>
-
-  <label>Nama Peserta:</label>
-  <input type="text" id="namaPeserta" required>
-
-  <label>Tanggal:</label>
-  <input type="date" id="tanggal" required>
-
-  <label>Unit:</label>
-  <select id="unit">
-    <option value="PC200-10 M0 CE">PC200-10 M0 CE</option>
-    <option value="PC210-10M0">PC210-10M0</option>
-    <option value="PC300-8M2">PC300-8M2</option>
-    <option value="PC350-8M2">PC350-8M2</option>
-  </select>
-
-  <div id="formArea"></div>
-
-  <label>Note:</label>
-  <textarea id="note"></textarea>
-
-  <button id="submit">Kirim Data</button>
-
-  <div class="status" id="status"></div>
+  <p id="status"></p>
 
   <script>
-    const questions = [
-      { id: "trackKanan", text: "Pengecekan Track Kanan" },
-      { id: "trackKiri", text: "Pengecekan Track Kiri" },
-      { id: "boom", text: "Pengecekan Boom" },
-      { id: "arm", text: "Pengecekan Arm" },
-      { id: "bucket", text: "Pengecekan Bucket" },
-      { id: "engine", text: "Pengecekan Area Engine" },
-      { id: "swing", text: "Pengecekan Area Swing system" },
-      { id: "hydraulic", text: "Pengecekan Area Hydraulic Pump" },
-      { id: "cooler", text: "Pengecekan Area Cooler" },
-      { id: "cabin", text: "Pengecekan Area Cabin" },
-      { id: "greasing", text: "Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
-    ];
-
-    const formArea = document.getElementById("formArea");
-
-    questions.forEach(({ id, text, options }) => {
-      const container = document.createElement("div");
-      container.innerHTML = `<label>${text}:</label>`;
-      const group = document.createElement("div");
-      group.className = "button-group";
-      (options || ["Baik", "Buruk"]).forEach(opt => {
-        const btn = document.createElement("button");
-        btn.textContent = opt;
-        btn.addEventListener("click", () => {
-          [...group.children].forEach(b => b.classList.remove("selected"));
-          btn.classList.add("selected");
-          btn.dataset.selected = "true";
-        });
-        group.appendChild(btn);
-      });
-      container.appendChild(group);
-      formArea.appendChild(container);
-    });
-
-    document.getElementById("submit").addEventListener("click", () => {
-      const getValue = (id) => {
-        const btns = [...document.querySelectorAll(`.button-group button`)].filter(b => b.parentElement.previousElementSibling.innerText.includes(id));
-        const selected = btns.find(b => b.classList.contains("selected"));
-        return selected ? selected.textContent : "";
-      };
-
-      const formData = {
+    function kirim() {
+      const data = {
         namaPeserta: document.getElementById("namaPeserta").value,
         tanggal: document.getElementById("tanggal").value,
-        unit: document.getElementById("unit").value,
-        trackKanan: getValue("Track Kanan"),
-        trackKiri: getValue("Track Kiri"),
-        boom: getValue("Boom"),
-        arm: getValue("Arm"),
-        bucket: getValue("Bucket"),
-        engine: getValue("Engine"),
-        swing: getValue("Swing"),
-        hydraulic: getValue("Hydraulic"),
-        cooler: getValue("Cooler"),
-        cabin: getValue("Cabin"),
-        greasing: getValue("Greasing"),
-        note: document.getElementById("note").value
       };
 
       fetch("https://script.google.com/macros/s/AKfycbwIWbQbqwChvkGRmegTUyiDIt_XGXyYTo5wN6r_UOVsds5WKk4eowCOXh8pnqENzjC9/exec", {
         method: "POST",
+        body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
+        }
       })
       .then(res => res.text())
-      .then(data => {
-        document.getElementById("status").textContent = "✅ Data berhasil dikirim!";
+      .then(res => {
+        document.getElementById("status").innerText = "✅ " + res;
       })
       .catch(err => {
-        console.error(err);
-        document.getElementById("status").textContent = "❌ Gagal mengirim data!";
+        document.getElementById("status").innerText = "❌ Error: " + err;
       });
-    });
-
-    // PWA
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
     }
   </script>
 </body>
