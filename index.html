@@ -75,4 +75,120 @@
 
     <label>Unit:</label>
     <div class="btn-group" id="unitOptions">
-      <div class="option-btn" data-
+      <div class="option-btn" data-value="PC200-10 M0 CE">PC200-10 M0 CE</div>
+      <div class="option-btn" data-value="PC210-10M0">PC210-10M0</div>
+      <div class="option-btn" data-value="PC300-8M2">PC300-8M2</div>
+      <div class="option-btn" data-value="PC350-8M2">PC350-8M2</div>
+    </div>
+
+    <!-- Pemeriksaan Dinamis -->
+    <div id="pemeriksaanContainer"></div>
+
+    <label>Note:</label>
+    <textarea id="note" rows="3" placeholder="Catatan tambahan..."></textarea>
+
+    <button type="submit">Simpan Pemeriksaan</button>
+  </form>
+
+  <div class="hasil" id="hasilContainer" style="display: none;">
+    <h3>Data Tersimpan:</h3>
+    <div id="hasilIsi"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("formPemeriksaan");
+    const hasil = document.getElementById("hasilIsi");
+    const container = document.getElementById("hasilContainer");
+    const pemeriksaanContainer = document.getElementById("pemeriksaanContainer");
+
+    let selectedUnit = null;
+    const state = {};
+
+    // Daftar pemeriksaan
+    const items = [
+      { id: "trackKanan", label: "1. Pengecekan Track Kanan", options: ["Baik", "Buruk"] },
+      { id: "trackKiri", label: "2. Pengecekan Track Kiri", options: ["Baik", "Buruk"] },
+      { id: "boom", label: "3. Pengecekan Boom", options: ["Baik", "Buruk"] },
+      { id: "arm", label: "4. Pengecekan Arm", options: ["Baik", "Buruk"] },
+      { id: "bucket", label: "5. Pengecekan Bucket", options: ["Baik", "Buruk"] },
+      { id: "engine", label: "6. Pengecekan Area Engine", options: ["Baik", "Buruk"] },
+      { id: "swing", label: "7. Pengecekan Area Swing System", options: ["Baik", "Buruk"] },
+      { id: "hydraulic", label: "8. Pengecekan Area Hydraulic Pump", options: ["Baik", "Buruk"] },
+      { id: "cooler", label: "9. Pengecekan Area Cooler", options: ["Baik", "Buruk"] },
+      { id: "cabin", label: "10. Pengecekan Area Cabin", options: ["Baik", "Buruk"] },
+      { id: "greasing", label: "11. Greasing", options: ["Sudah Greasing", "Belum Greasing"] }
+    ];
+
+    // Buat tombol untuk tiap pemeriksaan
+    items.forEach(item => {
+      const label = document.createElement("label");
+      label.textContent = item.label;
+
+      const group = document.createElement("div");
+      group.className = "btn-group";
+
+      item.options.forEach(opt => {
+        const btn = document.createElement("div");
+        btn.className = "option-btn";
+        btn.textContent = opt;
+        btn.dataset.value = opt;
+        btn.dataset.field = item.id;
+
+        btn.addEventListener("click", () => {
+          state[item.id] = opt;
+          [...group.children].forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+
+        group.appendChild(btn);
+      });
+
+      pemeriksaanContainer.appendChild(label);
+      pemeriksaanContainer.appendChild(group);
+    });
+
+    // Tombol pilihan unit
+    const unitButtons = document.querySelectorAll('#unitOptions .option-btn');
+    unitButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedUnit = btn.dataset.value;
+        unitButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Saat form disubmit
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      if (!selectedUnit) {
+        alert("Silakan pilih Unit terlebih dahulu.");
+        return;
+      }
+
+      const data = {
+        nama: document.getElementById("nama").value,
+        tanggal: document.getElementById("tanggal").value,
+        unit: selectedUnit,
+        note: document.getElementById("note").value,
+        ...state
+      };
+
+      // Simpan sementara (opsional)
+      localStorage.setItem("pemeriksaanUnit", JSON.stringify(data));
+
+      // Tampilkan hasil
+      hasil.innerHTML = Object.entries(data).map(([key, value]) => {
+        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1');
+        return `<div class="item"><strong>${label}:</strong> ${value}</div>`;
+      }).join("");
+      container.style.display = "block";
+
+      form.reset();
+      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+      selectedUnit = null;
+      for (let key in state) delete state[key];
+    });
+  </script>
+</body>
+</html>
